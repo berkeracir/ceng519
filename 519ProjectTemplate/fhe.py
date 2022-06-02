@@ -1,4 +1,3 @@
-from copy import deepcopy
 import timeit
 import numpy as np
 from random import randint
