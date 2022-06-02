@@ -92,7 +92,7 @@ def printReduceOnes(inputs, outputs, reference, n, random_index, timings, verbos
 		print(input_matrix)
 		print("Reduced Matrix:")
 		print(output_matrix)
-		print(f"Reduced Matrix {'==' if {np.array_equal(output_matrix, reference_matrix)} else '!='} Reference")
+		print(f"Reduced Matrix {'==' if (np.array_equal(output_matrix, reference_matrix)) else '!='} Reference")
 
 def printComputeDistances(inputs, outputs, reference, n, random_index, timings, verbose=False):
 	if verbose:
@@ -125,7 +125,7 @@ def printComputeDistances(inputs, outputs, reference, n, random_index, timings, 
 		print(input_matrix)
 		print("Distance Matrix:")
 		print(output_matrix)
-		print(f"Distance Matrix {'==' if {np.array_equal(output_matrix, reference_matrix)} else '!='} Reference")
+		print(f"Distance Matrix {'==' if (np.array_equal(output_matrix, reference_matrix)) else '!='} Reference")
 
 # Prepare input matrices where each matrix has shape of (n,n) and there are `vec_size` matrices.
 # Returns dictionary of matrices: {n_i_j: [x,y,z...]} (i.e. the (i,j)th element of the first matrix is 1).
@@ -394,7 +394,7 @@ def simulate(n, vec_size):
 	return timings_reduced, timings_distances
 
 if __name__ == "__main__":
-	simcnt = 100	# The number of simulation runs for each n and vec_size
+	simcnt = 2	# The number of simulation runs for each n and vec_size
 	
 	results_reduce_file = "results_reduce.csv"
 	results_distances_file = "results_distances.csv"
