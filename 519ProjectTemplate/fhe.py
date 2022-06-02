@@ -394,7 +394,7 @@ def simulate(n, vec_size):
 	return timings_reduced, timings_distances
 
 if __name__ == "__main__":
-	simcnt = 2	# The number of simulation runs for each n and vec_size
+	simcnt = 100	# The number of simulation runs for each n and vec_size
 	
 	results_reduce_file = "results_reduce.csv"
 	results_distances_file = "results_distances.csv"
