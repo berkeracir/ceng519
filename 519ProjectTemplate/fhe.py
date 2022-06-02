@@ -1,4 +1,5 @@
 import timeit
+from math import ceil
 import numpy as np
 from random import randint
 
@@ -248,7 +249,7 @@ def computeDistancesAnalytics(input, n):
 	distances = np.copy(adj_matrix)
 
 	for row in range(N):
-		for _ in range(N-2):	# directed paths cannot be greater than |n-1|
+		for _ in range(ceil(N/2)):
 			for col in range(N):
 				if row == col:	# ignore self-loops
 					continue
@@ -277,7 +278,7 @@ def computeDistances(inputs, n, vec_size, config, random_index):
 	
 	prog = computeDistancesProgram
 	prog.set_output_ranges(60)
-	prog.set_input_scales(30)
+	prog.set_input_scales(60)
 
 	# Compilation
 	start = timeit.default_timer()
@@ -387,7 +388,7 @@ def simulate(n, vec_size):
 	reducedInputs, timings_reduced = reduceOnes(inputs, n, vec_size, config, random_index)
 
 	# Get distances between each elements with EVA Program.
-	distances, timings_distances = computeDistances(reducedInputs, n, vec_size, config, random_index)
+	distances, timings_distances = computeDistances(inputs, n, vec_size, config, random_index)
 
 	countIslands(reducedInputs, distances, n, vec_size, random_index, VERBOSE)
 
