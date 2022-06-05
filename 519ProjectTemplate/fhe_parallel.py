@@ -131,10 +131,10 @@ def printComputeDistances(inputs, outputs, reference, n, random_index, timings, 
 
 # Prepare input matrices where each matrix has shape of (n,n) and there are `vec_size` matrices.
 # Returns dictionary of matrices: {n_i_j: [x,y,z...]} (i.e. the (i,j)th element of the first matrix is 1).
-def prepareInputs(n, m):
+def prepareInputs(n, vec_size):
 	inputs = {}
 	
-	for i in range(m):
+	for vec in range(vec_size):
 		# Create a matrix of size (n,n) with random 0s and 1s.
 		matrix = np.random.randint(2, size=(n,n))
 

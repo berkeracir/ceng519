@@ -158,6 +158,7 @@ def prepareAdjacencyInputs(inputs, adjacency_matrix, distance_input, shift, n, v
 		distance_input[:N**2] = adjacency_matrix.ravel()
 	else:
 		# If there are already distance input, then round its' values to nearest integers.
+		# Round the distance values in order to reset the approximation to some extend. 
 		distance_input = np.rint(np.array(distance_input))
 		distance_input[distance_input != 0] = 1	# In order to prevent overflowing issues.
 	adjacencyInputs['distance'] = list(distance_input)
@@ -335,12 +336,6 @@ def countIslands(inputs, outputs, n, verbose=False):
 			indices[(i_row,i_col)] = reachable_elements
 
 			if not (set(indices[(i_row,i_col)]) & islands):
-				# flag = False
-				# for index in indices.keys():	# TODO: QUICKFIX? This needs further attention.
-				# 	if (i_row,i_col) in indices[index]:
-				# 		flag = True
-				
-				# if not flag:
 				islands.add((i_row,i_col))
 
 	if verbose:
@@ -372,13 +367,12 @@ def simulate(n, vec_sizes):
 	adjacency_matrix, distance_input = None, None
 	for repeat in range(ceil(N/2)):
 		for shift in range(N):
-			verbose = VERBOSE if (repeat == ceil(n**2/2)-1 and shift == N-1) else False
+			verbose = VERBOSE if (repeat == ceil(N/2)-1 and shift == N-1) else False
 
 			# Prepare input adjacency matrix similar to EVA Input
 			adjacencyInputs, adjacency_matrix = prepareAdjacencyInputs(inputs, adjacency_matrix, distance_input, shift, n, vec_sizes[1])
 
 			outputs, timings = computeDistances(adjacencyInputs, n, shift, vec_sizes[1], config, verbose)
-			# round the distance values in order to reset the approximation to some extend. 
 			distance_input = outputs['distance']
 
 			for key in timings.keys():
