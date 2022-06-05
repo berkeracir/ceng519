@@ -47,7 +47,7 @@ def shift(arr, direction):
 # Rows/Columns of adjacency matrix represents a, b, c, d, e, f, g, h and i respectively.
 # If adj[i,j] is equal to 0, then node from arr with row i//3 and column i%3 is not neighbor of node from arr with row j//3 and column j%3.
 # Otherwise, node from arr with row i//3 and column i%3 is neighbor of node from arr with row j//3 and column j%3.
-def adjacencyMatrix(arr, n, zero_expr):
+def adjacencyMatrix(arr, n, zero_expr=0):
 	N = n * n	# matrix size is squared
 	result = np.zeros(shape=(N,N), dtype=Expr)
 
@@ -96,45 +96,59 @@ def printReduceOnes(inputs, outputs, reference, n, random_index, timings, verbos
 		print(output_matrix)
 		print(f"Reduced Matrix {'==' if (np.array_equal(output_matrix, reference_matrix)) else '!='} Reference")
 
-def printComputeDistances(inputs, outputs, reference, n, random_index, timings, verbose=False):
+def printComputeDistances(inputs, distanceInputs, outputs, reference, n, random_index, timings, verbose=False):
 	if verbose:
-		print(f"\nCOMPUTE DISTANCES:\n" +
-				f"-Compile Time: {timings['compile']}\n" +
-				f"-Key Generation Time: {timings['keyGeneration']}\n" +
-				f"-Encryption Time: {timings['encryption']}\n" + 
-				f"-Execution Time: {timings['execution']}\n" +
-				f"-Decryption Time: {timings['decryption']}\n" +
-				f"-Reference Execution Time: {timings['referenceExecution']}\n" +
-				f"-MSE: {timings['mse']}")
-
 		N = n * n	# matrix size is squared
+
 		input_matrix = np.zeros((n,n))
-		output_matrix = np.zeros((N,N))
+		adjacency_matrix = np.zeros((N,N))
+		input_distance_matrix = np.zeros((N,N))
+		distance_matrix = np.zeros((N,N))
 		reference_matrix = np.zeros((N,N))
 
 		for i in range(N):
 			for j in range(N):
-				key = f"n_{i}_{j}"
 				if i < n and j < n:
-					input_matrix[i,j] = inputs[key][random_index]
-				output_matrix[i,j] = outputs[key][random_index]
-				reference_matrix[i,j] = reference[key][random_index]
+					input_key = f"n_{i}_{j}"
+					input_matrix[i,j] = inputs[input_key][random_index]
+
+				adjacency_key = f"adjacency_{i}_{j}"
+				adjacency_matrix[i,j] = distanceInputs[adjacency_key][random_index]
+
+				distance_key = f"distance_{i}_{j}"
+				input_distance_matrix[i,j] = distanceInputs[distance_key][random_index]
+
+				distance_matrix[i,j] = outputs[distance_key][random_index]
+				reference_matrix[i,j] = reference[distance_key][random_index]
 	
 		input_matrix = np.rint(input_matrix).astype(int)
-		output_matrix = np.rint(output_matrix).astype(int)
+		distance_matrix = np.rint(distance_matrix).astype(int)
 		reference_matrix = np.rint(reference_matrix).astype(int)
 		print("Input Matrix:")
 		print(input_matrix)
 		print("Distance Matrix:")
-		print(output_matrix)
-		print(f"Distance Matrix {'==' if (np.array_equal(output_matrix, reference_matrix)) else '!='} Reference")
+		print(distance_matrix)
+		print(f"Distance Matrix {'==' if (np.array_equal(distance_matrix, reference_matrix)) else '!='} Reference")
+
+def printComputeDistancesTimings(timings, verbose=False):
+	if verbose:
+		call_count = len(timings['compile'])
+		print(f"\nCOMPUTE DISTANCES (summed):\n" +
+				f"-Total Call Count: {call_count}\n" +
+				f"-Compile Times: {sum(timings['compile'])}\n" +
+				f"-Key Generation Times: {sum(timings['keyGeneration'])}\n" +
+				f"-Encryption Times: {sum(timings['encryption'])}\n" + 
+				f"-Execution Times: {sum(timings['execution'])}\n" +
+				f"-Decryption Times: {sum(timings['decryption'])}\n" +
+				f"-Reference Execution Times: {sum(timings['referenceExecution'])}\n" +
+				f"-MSE (avg.): {sum(timings['mse'])/call_count}")
 
 # Prepare input matrices where each matrix has shape of (n,n) and there are `vec_size` matrices.
-# Returns dictionary of matrices: {n_i_j: [x,y,z...]} (i.e. the (i,j)th element of the first matrix is 1).
-def prepareInputs(n, m):
+# Returns dictionary of matrices: {n_i_j: [x,y,z...]} (i.e. the (i,j)th element of the first matrix is x).
+def prepareInputs(n, vec_size):
 	inputs = {}
 	
-	for i in range(m):
+	for vec in range(vec_size):
 		# Create a matrix of size (n,n) with random 0s and 1s.
 		matrix = np.random.randint(2, size=(n,n))
 
@@ -147,6 +161,38 @@ def prepareInputs(n, m):
 					inputs[key].append(matrix[i,j])
 
 	return inputs
+
+# Prepare adjacency and distance matrices where each matrix has shape of (n^2,n^2), and there are `vec_size` matrices.
+# Returns dictionary of matrices: {adjacency_i_j: [x,y,z,...], distance_i_j: [a,b,c,...]} (i.e. the (i,j)th element of the first adjacency matrix is x).
+def prepareDistanceInputs(inputs, n, vec_size):
+	distanceInputs = {}
+	N = n * n
+	
+	for vec in range(vec_size):
+		input_matrix = np.zeros(shape=(n,n))
+		for i in range(n):
+			for j in range(n):
+				key = f"n_{i}_{j}"
+				input_matrix[i,j] = inputs[key][vec]
+
+		adjacency_matrix = adjacencyMatrix(input_matrix, n, 0)
+		distance_matrix = np.copy(adjacency_matrix)
+
+		for i in range(N):
+			for j in range(N):
+				adjacency_key = f"adjacency_{i}_{j}"
+				if adjacency_key not in distanceInputs.keys():
+					distanceInputs[adjacency_key] = [adjacency_matrix[i,j]]
+				else:
+					distanceInputs[adjacency_key].append(adjacency_matrix[i,j])
+
+				distance_key = f"distance_{i}_{j}"
+				if distance_key not in distanceInputs.keys():
+					distanceInputs[distance_key] = [distance_matrix[i,j]]
+				else:
+					distanceInputs[distance_key].append(distance_matrix[i,j])
+
+	return distanceInputs
 
 # Analytic service that reduces the number of ones.
 def reduceOnesAnalytics(input, n):
@@ -235,51 +281,47 @@ def reduceOnes(inputs, n, vec_size, config, random_index):
 	return outputs, timings
 
 # Analytic service that computes distances between each elements.
-def computeDistancesAnalytics(input, n):
-	# Create a numpy zeros matrix with Expr data type for input data
-	matrix = np.zeros(shape=(n,n), dtype=Expr)
-	for i in range(n):
-		for j in range(n):
-			key = f"n_{i}_{j}"
-			# From the input data create the matrix
-			matrix[i,j] = input[key]
-	
+def computeDistancesAnalytics(input, n, row):	
 	N = n * n	# adjacency matrix size is square of input's size
-	# Get the adjacency matrix of input matrix 
-	adj_matrix = adjacencyMatrix(matrix, n, input['zero'])
-	distances = np.copy(adj_matrix)
 
-	for row in range(N):
-		for _ in range(ceil(N/2)):
-			for col in range(N):
-				if row == col:	# ignore self-loops
-					continue
-				# distances[row] += np.full(shape=(N,), fill_value=(matrix[row//n, row%n] * distances[row, col])) * adj_matrix[col]
-				distances[row] += np.full((N,), distances[row, col]) * adj_matrix[col]	# BROADCAST ERROR!
+	adjacency_matrix = np.empty(shape=(N,N), dtype=Expr)
+	distance_matrix = np.empty(shape=(N,N), dtype=Expr)
 
-	return distances
+	for i in range(N):
+		for j in range(N):
+			adjacency_key = f"adjacency_{i}_{j}"
+			adjacency_matrix[i,j] = input[adjacency_key]
+			distance_key = f"distance_{i}_{j}"
+			distance_matrix[i,j] = input[distance_key]
+	
+	for col in range(N):
+		distance_matrix[row] += np.full((N,), distance_matrix[row, col]) * adjacency_matrix[col]	# BROADCAST ERROR!
+
+	return distance_matrix
 
 # EVA Program that computes distances between each elements.
-def computeDistances(inputs, n, vec_size, config, random_index):
+def computeDistances(inputs, distanceInputs, n, row, vec_size, config, random_index, verbose):
+	N = n * n
+
 	computeDistancesProgram = EvaProgram("Compute distances", vec_size=vec_size)
 	with computeDistancesProgram:
-		input = {'zero': Input('zero', is_encrypted=True)}
-		for i in range(n):
-			for j in range(n):
-				key = f"n_{i}_{j}"
-				input[key] = Input(key)
-		
-		output_matrix = computeDistancesAnalytics(input, n)
-		N = n * n
+		input = {}
 		for i in range(N):
 			for j in range(N):
-				key = f"n_{i}_{j}"
+				adjacency_key = f"adjacency_{i}_{j}"
+				input[adjacency_key] = Input(adjacency_key)
+				distance_key = f"distance_{i}_{j}"
+				input[distance_key] = Input(distance_key)
+		
+		output_matrix = computeDistancesAnalytics(input, n, row)
+		for i in range(N):
+			for j in range(N):
+				key = f"distance_{i}_{j}"
 				Output(key, output_matrix[i,j])
-	inputs['zero'] = [0] * vec_size	# https://github.com/microsoft/SEAL/issues/200
 	
 	prog = computeDistancesProgram
-	prog.set_output_ranges(60)
-	prog.set_input_scales(60)
+	prog.set_output_ranges(30)
+	prog.set_input_scales(30)
 
 	# Compilation
 	start = timeit.default_timer()
@@ -294,7 +336,7 @@ def computeDistances(inputs, n, vec_size, config, random_index):
 	
 	# Encryption
 	start = timeit.default_timer()
-	encInputs = public_ctx.encrypt(inputs, signature)
+	encInputs = public_ctx.encrypt(distanceInputs, signature)
 	encryptionTime = (timeit.default_timer() - start) * 1000.0 #ms
 
 	# Execution
@@ -309,7 +351,7 @@ def computeDistances(inputs, n, vec_size, config, random_index):
 
 	# Evaluation
 	start = timeit.default_timer()
-	reference = evaluate(compiled_multfunc, inputs)
+	reference = evaluate(compiled_multfunc, distanceInputs)
 	referenceExecutionTime = (timeit.default_timer() - start) * 1000.0 #ms
 
 	# Approximation
@@ -323,7 +365,7 @@ def computeDistances(inputs, n, vec_size, config, random_index):
 			   'referenceExecution': referenceExecutionTime,
 			   'mse': mse
 			   }
-	printComputeDistances(inputs, outputs, reference, n, random_index, timings, verbose=VERBOSE)
+	printComputeDistances(inputs, distanceInputs, outputs, reference, n, random_index, timings, verbose)
 	return outputs, timings
 
 # Count the islands
@@ -336,10 +378,11 @@ def countIslands(inputs, distances, n, vec_size, random_index, verbose=False):
 
 		for i in range(N):
 			for j in range(N):
-				key = f"n_{i}_{j}"
 				if i < n and j < n:
-					input_matrix[i,j] = inputs[key][vec]
-				distance_matrix[i,j] = distances[key][vec]
+					input_key = f"n_{i}_{j}"
+					input_matrix[i,j] = inputs[input_key][vec]
+				distance_key = f"distance_{i}_{j}"
+				distance_matrix[i,j] = distances[distance_key][vec]
 		
 		# round the values to closest integers
 		input_matrix = np.rint(input_matrix).astype(int)
@@ -370,6 +413,8 @@ def countIslands(inputs, distances, n, vec_size, random_index, verbose=False):
 
 # Repeat the experiments and show averages with confidence intervals
 def simulate(n, vec_size):
+	N = n * n
+
 	config = {}
 	config['balance_reductions'] = "true"
 	config['rescaler'] = "always"
@@ -386,8 +431,33 @@ def simulate(n, vec_size):
 	# Reduce the number of ones in the input matrix with EVA Program.
 	reducedInputs, timings_reduced = reduceOnes(inputs, n, vec_size, config, random_index)
 
+	# Prepare input matrices similar to EVA Input
+	distanceInputs = prepareDistanceInputs(inputs, n, vec_size)
+
 	# Get distances between each elements with EVA Program.
-	distances, timings_distances = computeDistances(inputs, n, vec_size, config, random_index)
+	timings_distances = {}
+	for repeat in range(ceil(N/2)):
+		for row in range(N):
+			verbose = VERBOSE if (repeat == ceil(N/2)-1 and row == N-1) else False
+			# Get distances between each elements with EVA Program.
+			distances, timings = computeDistances(inputs, distanceInputs, n, row, vec_size, config, random_index, verbose)
+
+			# Update distance values in the input.
+			for i in range(N):
+				for j in range(N):
+					key = f"distance_{i}_{j}"
+					# round the distance values in order to reset the approximation to some extend. 
+					distance = np.rint(np.array(distances[key]))
+					distance[distance != 0] = 1
+					distanceInputs[key] = list(distance)
+
+			for key in timings.keys():
+				if key in timings_distances.keys():
+					timings_distances[key].append(timings[key])
+				else:
+					timings_distances[key] = [timings[key]]
+	
+	printComputeDistancesTimings(timings_distances, VERBOSE)
 
 	countIslands(reducedInputs, distances, n, vec_size, random_index, True)
 
@@ -397,19 +467,19 @@ if __name__ == "__main__":
 	simcnt = 100	# The number of simulation runs for each n and vec_size
 	
 	os.makedirs("results", exist_ok=True)	# create results directory if not exists
-	results_reduce_file = "results/parallel_reduce.csv"
-	results_distances_file = "results/parallel_distances.csv"
+	results_reduce_file = "results/parallel_loop_reduce.csv"
+	results_distances_file = "results/parallel_loop_distances.csv"
 
 	with open(results_reduce_file, 'w') as  f:
-		f.write("n,VecSize,sim,CompileTime,KeyGenerationTime,EncryptionTime,ExecutionTime,DecryptionTime,ReferenceExecutionTime,Mse\n")
+		f.write("n,VecSize,sim,CompileTime,KeyGenerationTime,EncryptionTime,ExecutionTime,DecryptionTime,ReferenceExecutionTime,MSE\n")
 		f.close()
 	with open(results_distances_file, 'w') as  f:
-		f.write("n,VecSize,sim,CompileTime,KeyGenerationTime,EncryptionTime,ExecutionTime,DecryptionTime,ReferenceExecutionTime,Mse\n")
+		f.write("n,VecSize,sim,CompileTime,KeyGenerationTime,EncryptionTime,ExecutionTime,DecryptionTime,ReferenceExecutionTime,MSE\n")
 		f.close()
 	
 	print("Simulation campaing started:")
-	N_LIST = [1,2]
-	VEC_POWERS = [10,11,12,13,14]
+	N_LIST = [1,2,3]
+	VEC_POWERS = [1,2,3,4,6,8,10]
 	
 	for n in N_LIST:
 		for vec_pow in VEC_POWERS:
@@ -423,8 +493,9 @@ if __name__ == "__main__":
 					result_str = f"{n},{vec_size},{sim},{timings_reduce['compile']},{timings_reduce['keyGeneration']},{timings_reduce['encryption']},{timings_reduce['execution']},{timings_reduce['decryption']},{timings_reduce['referenceExecution']},{timings_reduce['mse']}"
 					if VERBOSE: print(result_str)
 					f.write(result_str + "\n")
-				
+			
 				with open(results_distances_file, "a") as f:
-					result_str = f"{n},{vec_size},{sim},{timings_distances['compile']},{timings_distances['keyGeneration']},{timings_distances['encryption']},{timings_distances['execution']},{timings_distances['decryption']},{timings_distances['referenceExecution']},{timings_distances['mse']}"
-					if VERBOSE: print(result_str)
-					f.write(result_str + "\n")
+					for i in range(len(timings_distances['compile'])):
+						result_str = f"{n},{vec_size},{sim},{timings_distances['compile'][i]},{timings_distances['keyGeneration'][i]},{timings_distances['encryption'][i]},{timings_distances['execution'][i]},{timings_distances['decryption'][i]},{timings_distances['referenceExecution'][i]},{timings_distances['mse'][i]}"
+						if VERBOSE: print(result_str)
+						f.write(result_str + "\n")

@@ -401,15 +401,15 @@ if __name__ == "__main__":
 	results_distances_file = "results/parallel_distances.csv"
 
 	with open(results_reduce_file, 'w') as  f:
-		f.write("n,VecSize,sim,CompileTime,KeyGenerationTime,EncryptionTime,ExecutionTime,DecryptionTime,ReferenceExecutionTime,Mse\n")
+		f.write("n,VecSize,sim,CompileTime,KeyGenerationTime,EncryptionTime,ExecutionTime,DecryptionTime,ReferenceExecutionTime,MSE\n")
 		f.close()
 	with open(results_distances_file, 'w') as  f:
-		f.write("n,VecSize,sim,CompileTime,KeyGenerationTime,EncryptionTime,ExecutionTime,DecryptionTime,ReferenceExecutionTime,Mse\n")
+		f.write("n,VecSize,sim,CompileTime,KeyGenerationTime,EncryptionTime,ExecutionTime,DecryptionTime,ReferenceExecutionTime,MSE\n")
 		f.close()
 	
 	print("Simulation campaing started:")
 	N_LIST = [1,2]
-	VEC_POWERS = [10,11,12,13,14]
+	VEC_POWERS = [1,2,3,4,6,8,10]
 	
 	for n in N_LIST:
 		for vec_pow in VEC_POWERS:
