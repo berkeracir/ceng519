@@ -1,3 +1,4 @@
+from math import ceil
 import numpy as np
 
 # directions: left, right, up, down
@@ -73,13 +74,29 @@ def computeDistances(matrix, n):
 	result = np.copy(adj_matrix)
 
 	for row in range(N):
-		for repeat in range(N-2):
+		for repeat in range(ceil(N/2)):
 			for col in range(N):
 				if row == col:
 					continue
 				result[row] += result[row, col] * adj_matrix[col]
 
 	return result 
+
+# Compute distances between each vectorized elements
+def computeDistances_vectorized(matrix, n):
+	N = n * n
+	adj_matrix = adjacencyMatrix(matrix, n).ravel()
+	result = np.copy(adj_matrix)
+
+	for repeat in range(ceil(N/2)):
+		for shift in range(N):
+			adjacency = np.tile(adj_matrix[N*shift:N*shift+N], N)
+			extended = np.zeros(shape=(N**2))
+			for i in range(N):
+				extended[i*N:i*N+N] = np.tile(result[i*N+shift], N)
+			result += extended * adjacency
+	
+	return result.reshape((N,N))
 
 # Count the islands
 def countIslands(matrix, distances, n):
@@ -97,28 +114,19 @@ def countIslands(matrix, distances, n):
 
 
 if __name__ == "__main__":
-	# n = 11
-	# input_matrix = np.array([[1,0,1,1,1,0,1,1,1,0,1],
-	# 						 [1,0,1,0,1,0,1,0,1,0,1],
-	# 						 [1,0,1,0,1,0,1,0,1,0,1],
-	# 						 [1,0,1,0,1,0,1,0,1,0,1],
-	# 						 [1,0,1,0,1,0,1,0,1,0,1],
-	# 						 [1,0,1,0,1,0,1,0,1,0,1],
-	# 						 [1,0,1,0,1,0,1,0,1,0,1],
-	# 						 [1,0,1,0,1,0,1,0,1,0,1],
-	# 						 [1,0,1,0,1,0,1,0,1,0,1],
-	# 						 [1,0,1,0,1,0,1,0,1,0,1],
-	# 						 [1,1,1,0,1,1,1,0,1,1,1]])
 	n = int(input("Input Size: "))
 	input_matrix = np.random.randint(2, size=(n,n))
 
 	reduced_input = reduceOnes(input_matrix)
-	distances = computeDistances(reduced_input, n)
-	islands, count = countIslands(input_matrix, distances, n)
+	distances = computeDistances(input_matrix, n)
+	distances_vectorized = computeDistances_vectorized(input_matrix, n)
+	islands, count = countIslands(reduced_input, distances, n)
+	islands_vectorized, count_vectorized = countIslands(reduced_input, distances, n)
+	distances[distances != 0] = 1
 
 	print("\nInput Matrix:")
 	print(input_matrix, '\n')
 	print("Reduced Input Matrix:")
 	print(reduced_input, '\n')
-	print(f"Islands: {islands}")
-	print(f"Island Count: {count}")
+	print(f"Islands: {islands} {'==' if islands == islands_vectorized else '!='} {islands_vectorized} (Vectorized)")
+	print(f"Island Count: {count} {'==' if count == count_vectorized else '!='} {count_vectorized} (Vectorized)")
