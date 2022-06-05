@@ -34,15 +34,15 @@ def shift(arr, direction):
 #        [d, e, f],
 #        [g, h, i]]
 # will be converted into the following adjacency matrix of shape (9,9):
-# adj = [[  0, a*b,   0, a*d, a*e,   0,   0,   0,   0],
-#        [b*a,   0, b*c, b*d, b*e, b*f,   0,   0,   0],
-#        [  0, c*b,   0,   0, c*e, c*f,   0,   0,   0],
-#        [d*a, d*b,   0,   0, d*e,   0, d*g, d*h,   0],
-#        [e*a, e*b, e*c, e*d,   0, e*f, e*g, e*h, e*i],
-#        [  0, f*b, f*c,   0, f*e,   0,   0, f*h, f*i],
-#        [  0,   0,   0, g*d, g*e,   0,   0, g*h,   0],
-#        [  0,   0,   0, h*d, h*e, h*f, h*g,   0, h*i],
-#        [  0,   0,   0,   0,   0, i*e, i*f, i*h,   0]]
+# adj = [[0, b, 0, d, e, 0, 0, 0, 0],
+#        [a, 0, c, d, e, f, 0, 0, 0],
+#        [0, b, 0, 0, e, f, 0, 0, 0],
+#        [a, b, 0, 0, e, 0, g, h, 0],
+#        [a, b, c, d, 0, f, g, h, i],
+#        [0, b, c, 0, e, 0, 0, h, i],
+#        [0, 0, 0, d, e, 0, 0, h, 0],
+#        [0, 0, 0, d, e, f, g, 0, i],
+#        [0, 0, 0, 0, 0, e, f, h, 0]]
 # Rows/Columns of adjacency matrix represents a, b, c, d, e, f, g, h and i respectively.
 # If adj[i,j] is equal to 0, then node from arr with row i//3 and column i%3 is not neighbor of node from arr with row j//3 and column j%3.
 # Otherwise, node from arr with row i//3 and column i%3 is neighbor of node from arr with row j//3 and column j%3.
