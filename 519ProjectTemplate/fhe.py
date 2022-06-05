@@ -2,8 +2,9 @@ import timeit
 from math import ceil
 import numpy as np
 from random import randint
+import os
 
-from eva import EvaProgram, Input, Output, evaluate, Expr, save, load
+from eva import EvaProgram, Input, Output, evaluate, Expr
 from eva.ckks import CKKSCompiler
 from eva.seal import generate_keys
 from eva.metric import valuation_mse
@@ -363,9 +364,7 @@ def countIslands(inputs, distances, n, vec_size, random_index, verbose=False):
 			print("\nCOUNT THE ISLANDS:")
 			print("Input Matrix:")
 			print(input_matrix)
-			for (i,j) in indices.keys():
-				print(f"[{i},{j}] can reach to {indices[(i,j)]}.")
-			print(f"Island Count: {len(islands)}")
+			print(f"Islands: {sorted(islands)} and Island Count: {len(islands)}")
 	
 	return counts
 
@@ -390,21 +389,22 @@ def simulate(n, vec_size):
 	# Get distances between each elements with EVA Program.
 	distances, timings_distances = computeDistances(inputs, n, vec_size, config, random_index)
 
-	countIslands(reducedInputs, distances, n, vec_size, random_index, VERBOSE)
+	countIslands(reducedInputs, distances, n, vec_size, random_index, True)
 
 	return timings_reduced, timings_distances
 
 if __name__ == "__main__":
 	simcnt = 100	# The number of simulation runs for each n and vec_size
 	
-	results_reduce_file = "results_reduce.csv"
-	results_distances_file = "results_distances.csv"
+	os.makedirs("results", exist_ok=True)	# create results directory if not exists
+	results_reduce_file = "results/parallel_reduce.csv"
+	results_distances_file = "results/parallel_distances.csv"
 
 	with open(results_reduce_file, 'w') as  f:
-		f.write("n,VecSize,CompileTime,KeyGenerationTime,EncryptionTime,ExecutionTime,DecryptionTime,ReferenceExecutionTime,Mse\n")
+		f.write("n,VecSize,sim,CompileTime,KeyGenerationTime,EncryptionTime,ExecutionTime,DecryptionTime,ReferenceExecutionTime,Mse\n")
 		f.close()
 	with open(results_distances_file, 'w') as  f:
-		f.write("n,VecSize,CompileTime,KeyGenerationTime,EncryptionTime,ExecutionTime,DecryptionTime,ReferenceExecutionTime,Mse\n")
+		f.write("n,VecSize,sim,CompileTime,KeyGenerationTime,EncryptionTime,ExecutionTime,DecryptionTime,ReferenceExecutionTime,Mse\n")
 		f.close()
 	
 	print("Simulation campaing started:")
@@ -414,17 +414,17 @@ if __name__ == "__main__":
 	for n in N_LIST:
 		for vec_pow in VEC_POWERS:
 			vec_size = 2**vec_pow
-			for i in range(simcnt):
-				print(f"[{i+1}/{simcnt}] - n:{n}, vec_size:{vec_size}")
+			for sim in range(simcnt):
+				print(f"[{sim+1}/{simcnt}] - n:{n}, vec_size:{vec_size}")
 				# Call the simulator
 				timings_reduce, timings_distances = simulate(n, vec_size)
 				
 				with open(results_reduce_file, "a") as f:
-					result_str = f"{n},{vec_size},{timings_reduce['compile']},{timings_reduce['keyGeneration']},{timings_reduce['encryption']},{timings_reduce['execution']},{timings_reduce['decryption']},{timings_reduce['referenceExecution']},{timings_reduce['mse']}"
-					print(result_str)
+					result_str = f"{n},{vec_size},{sim},{timings_reduce['compile']},{timings_reduce['keyGeneration']},{timings_reduce['encryption']},{timings_reduce['execution']},{timings_reduce['decryption']},{timings_reduce['referenceExecution']},{timings_reduce['mse']}"
+					if VERBOSE: print(result_str)
 					f.write(result_str + "\n")
 				
 				with open(results_distances_file, "a") as f:
-					result_str = f"{n},{vec_size},{timings_distances['compile']},{timings_distances['keyGeneration']},{timings_distances['encryption']},{timings_distances['execution']},{timings_distances['decryption']},{timings_distances['referenceExecution']},{timings_distances['mse']}"
-					print(result_str)
+					result_str = f"{n},{vec_size},{sim},{timings_distances['compile']},{timings_distances['keyGeneration']},{timings_distances['encryption']},{timings_distances['execution']},{timings_distances['decryption']},{timings_distances['referenceExecution']},{timings_distances['mse']}"
+					if VERBOSE: print(result_str)
 					f.write(result_str + "\n")
