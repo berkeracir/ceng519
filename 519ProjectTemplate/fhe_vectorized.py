@@ -401,14 +401,14 @@ if __name__ == "__main__":
 	results_distances_file = "results/vectorized_distances.csv"
 
 	with open(results_reduce_file, 'w') as  f:
-		f.write("n,VecSize,simCount,CompileTime,KeyGenerationTime,EncryptionTime,ExecutionTime,DecryptionTime,ReferenceExecutionTime,MSE\n")
+		f.write("n,VecSize,sim,CompileTime,KeyGenerationTime,EncryptionTime,ExecutionTime,DecryptionTime,ReferenceExecutionTime,MSE\n")
 		f.close()
 	with open(results_distances_file, 'w') as  f:
-		f.write("n,VecSize,simCount,CompileTime,KeyGenerationTime,EncryptionTime,ExecutionTime,DecryptionTime,ReferenceExecutionTime,MSE\n")
+		f.write("n,VecSize,sim,CompileTime,KeyGenerationTime,EncryptionTime,ExecutionTime,DecryptionTime,ReferenceExecutionTime,MSE\n")
 		f.close()
 	
 	print("Simulation campaing started:")
-	N_LIST = [5]#[2,3,4,5]
+	N_LIST = [1,2,3,4,5]
 	
 	for n in N_LIST:
 		n_reduce = pow(n+2,2)	# +2 comes from paddings
