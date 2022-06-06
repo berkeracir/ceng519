@@ -1,4 +1,4 @@
-#Download base image ubuntu 20.04
+# Download base image ubuntu 20.04
 FROM ubuntu:20.04
 # LABEL about the custom image
 LABEL maintainer="berkeracir159@gmail.com"
@@ -37,9 +37,6 @@ RUN git clone https://github.com/microsoft/EVA.git \
     && make -j \
     && pip3 install -e ./python \ 
     && pip3 install -r examples/requirements.txt \
-    && cd examples/ 
+    && cd examples/
 
-RUN pip3 install adhoccomputing \
-    && pip3 install networkx
-
-COPY 519ProjectTemplate /development/519ProjectTemplate
+COPY project /development/project
