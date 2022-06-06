@@ -10,7 +10,7 @@ The dockerfile is for generating a container that establishes the development en
 > 
 > **Time complexity: O(ROW x COL)**
 
-For example, the 2D matrix below has 5 islands:
+For example, the 2D matrix below contains 5 islands:
 
 ![Example 2D matrix with 5 islands](/figures/input_matrix.png "Input Matrix")
 
