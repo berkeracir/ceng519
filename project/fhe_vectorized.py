@@ -382,9 +382,9 @@ def simulate(n, vec_sizes):
 if __name__ == "__main__":
 	simcnt = 100	# The number of simulation runs for each n
 	
-	os.makedirs("results", exist_ok=True)	# create results directory if not exists
-	results_reduce_file = "results/vectorized_reduce.csv"
-	results_distances_file = "results/vectorized_distances.csv"
+	os.makedirs("/development/project/results", exist_ok=True)	# create results directory if not exists
+	results_reduce_file = "/development/project/results/vectorized_reduce.csv"
+	results_distances_file = "/development/project/results/vectorized_distances.csv"
 
 	with open(results_reduce_file, 'w') as  f:
 		f.write("n,VecSize,sim,CompileTime,KeyGenerationTime,EncryptionTime,ExecutionTime,DecryptionTime,ReferenceExecutionTime,MSE\n")
