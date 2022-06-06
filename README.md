@@ -19,15 +19,16 @@ For example, the 2D matrix below contains 5 islands:
 ```
 # build the docker image
 docker build --progress=plain -t berkeracir/ceng519-fhe .
-# run the docker image
-docker run -v $(pwd)/project:/development/project -it berkeracir/ceng519-fhe /bin/bash
 
-# run the parallel version of the implemented algorithm
-python3 project/fhe_parallel.py
-# run the parallel and looped version of the implemented algorithm
-python3 project/fhe_parallel_loop.py
-# run the vectorized version of the implemented algorithm
-python3 project/fhe_vectorized.py
-# run the implemented algorithm without using FHE libraries and compilers
-python3 project/without_fhe.py
+# run the docker image with the parallelized version of the implemented algorithm
+docker run -v $(pwd)/project:/development/project -it berkeracir/ceng519-fhe /bin/bash -c 'python3 ./project/fhe_parallel.py'
+
+# run the docker image with the parallelized and looped version of the implemented algorithm
+docker run -v $(pwd)/project:/development/project -it berkeracir/ceng519-fhe /bin/bash -c 'python3 ./project/fhe_parallel_loop.py'
+
+# run the docker image with the vectorized version of the implemented algorithm
+docker run -v $(pwd)/project:/development/project -it berkeracir/ceng519-fhe /bin/bash -c 'python3 ./project/fhe_vectorized.py'
+
+# run the docker image with the implemented algorithm without using FHE libraries and compilers
+docker run -v $(pwd)/project:/development/project -it berkeracir/ceng519-fhe /bin/bash -c 'python3 ./project/without_fhe.py'
 ```
