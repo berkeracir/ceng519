@@ -168,14 +168,6 @@ def prepareAdjacencyInputs(inputs, adjacency_matrix, distance_input, shift, n, v
 		extended_input[N*i:N*(i+1)] = np.tile(distance_input[N*i+shift], N)
 	adjacencyInputs['extended'] = list(extended_input)
 
-	# print(f'##########\nShift: {shift}')
-	# print('adj')
-	# print(adjacency_input[:N**2].reshape((N,N)))
-	# print('ext')
-	# print(extended_input[:N**2].reshape((N,N)))
-	# print('dist')
-	# print(distance_input[:N**2].reshape((N,N)))
-	# print('##########')
 	return adjacencyInputs, adjacency_matrix
 
 # Analytic service that reduces the number of ones.

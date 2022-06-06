@@ -479,7 +479,7 @@ if __name__ == "__main__":
 	
 	print("Simulation campaing started:")
 	N_LIST = [1,2,3]
-	VEC_POWERS = [1,2,3,4,6,8,10]
+	VEC_POWERS = [0,1,2,3,4,6,8,10]
 	
 	for n in N_LIST:
 		for vec_pow in VEC_POWERS:
