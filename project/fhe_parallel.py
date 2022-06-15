@@ -278,8 +278,8 @@ def computeDistances(inputs, n, vec_size, config, random_index):
 	inputs['zero'] = [0] * vec_size	# https://github.com/microsoft/SEAL/issues/200
 	
 	prog = computeDistancesProgram
-	prog.set_output_ranges(60)
-	prog.set_input_scales(60)
+	prog.set_output_ranges(30)
+	prog.set_input_scales(30)
 
 	# Compilation
 	start = timeit.default_timer()
