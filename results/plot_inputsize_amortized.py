@@ -23,6 +23,7 @@ for i in range(len(reduce_files)):
 	df = pd.read_csv(distances_file).drop(columns=['sim'])
 	df = df[((df['n'] == 1) | (df['n'] == 2) | (df['n'] == 3))]
 	if i != 0:
+		df = df[df['VecSize'] == 1024]
 		df['CompileTime'] = df['CompileTime'] / df['VecSize']
 		df['KeyGenerationTime'] = df['KeyGenerationTime'] / df['VecSize']
 		df['EncryptionTime'] = df['EncryptionTime'] / df['VecSize']
@@ -72,6 +73,7 @@ for i in range(len(distances_files)):
 	df = pd.read_csv(distances_file).drop(columns=['sim'])
 	df = df[((df['n'] == 1) | (df['n'] == 2) | (df['n'] == 3))]
 	if i != 0:
+		df = df[df['VecSize'] == 1024]
 		df['CompileTime'] = df['CompileTime'] / df['VecSize']
 		df['KeyGenerationTime'] = df['KeyGenerationTime'] / df['VecSize']
 		df['EncryptionTime'] = df['EncryptionTime'] / df['VecSize']

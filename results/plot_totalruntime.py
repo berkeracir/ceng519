@@ -77,6 +77,7 @@ for i in range(len(reduce_files)):
 	df['n'] = df['n'] * df['n']
 	df['total'] = df['CompileTime'] + df['KeyGenerationTime'] + df['EncryptionTime'] + df['ExecutionTime'] + df['DecryptionTime'] + df['ReferenceExecutionTime']
 	if i != 0:
+		df = df[df['VecSize'] == 1024]
 		df['total'] = df['total']/df['VecSize']
 	gb = df.groupby(['n'])
 	gb_values = list(gb.groups)
@@ -96,6 +97,7 @@ for i in range(len(distances_files)):
 	if i != 1:
 		df['total'] = df['total'] * (df['n']**2/2).apply(np.ceil) * df['n']**2
 	if i != 0:
+		df = df[df['VecSize'] == 1024]
 		df['total'] = df['total']/df['VecSize']
 	gb = df.groupby(['n'])
 	gb_values = list(gb.groups)
